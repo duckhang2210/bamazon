@@ -68,7 +68,7 @@ function purchase() {
                   console.log("===================================================");
                   console.log("Sorry! Not enough in stock. Please try again later.");
                   console.log("===================================================");
-                  purchase();
+                  confirmPrompt();
 
               } else {
                   //list item information for user for confirm prompt
@@ -88,8 +88,16 @@ function purchase() {
                   cartUpdated.total += (res[i].price * userPurchase.inputNumber)
                   var newStock = (res[i].stock_quantity - userPurchase.inputNumber);
                   var purchaseId = (userPurchase.inputId);
+                  connection.query("UPDATE products SET ? WHERE ?", [
+                    {
+                      stock_quantity: newStock
+                    },
+                    {
+                      item_id: purchaseId
+                    }
+                  ]);
                   //console.log(newStock);
-                  confirmPrompt(newStock, purchaseId);
+                  confirmPrompt();
               }
           }
       });
@@ -105,7 +113,7 @@ function cart() {
   console.log("===================================");
 }
 
-function confirmPrompt(newStock, purchaseId){
+function confirmPrompt(){
   inquirer.prompt([
     {
       name: "checkout",
@@ -126,14 +134,6 @@ function confirmPrompt(newStock, purchaseId){
   ]).then(function(answer){
     if (answer.pay){
       console.log('thanks');
-      connection.query("UPDATE products SET ? WHERE ?", [
-        {
-          stock_quantity: newStock
-        },
-        {
-          item_id: purchaseId
-        }
-      ]);
       shopAgain();
     }else{
       confirmPrompt();
